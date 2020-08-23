@@ -1,0 +1,280 @@
+﻿@model Users
+
+@{
+    ViewData["Title"] = "Index";
+    Layout = "~/Views/Shared/_Layout.cshtml";
+}
+
+<!-- JQuery DataTable Css -->
+<link href="/plugins/jquery-datatable/skin/bootstrap/css/dataTables.bootstrap.min.css" rel="stylesheet" />
+
+<!-- Jquery DataTable Plugin Js -->
+<script src="/plugins/jquery-datatable/jquery.dataTables.js"></script>
+<script src="/plugins/jquery-datatable/skin/bootstrap/js/dataTables.bootstrap.js"></script>
+
+<!-- Jquery Moment Plugin Js -->
+<script src="~/Scripts/moment.min.js"></script>
+
+<!-- Jquery UnOnbtrusive Ajax Plugin Js -->
+<script src="~/lib/jquery-validation/dist/jquery.validate.js"></script>
+<script src="~/lib/jquery-validation-unobtrusive/jquery.validate.unobtrusive.js"></script>
+<script src="~/Js/jquery.unobtrusive-ajax.min.js"></script>
+
+<section class="content">
+    <div class="container-fluid">
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12" id="UsersCreateOrUpdateView">
+            <div class="info-box bg-pink hover-expand-effect" style="text-decoration: none; cursor: pointer;">
+                <div class="icon">
+                    <i class="material-icons">note_add</i>
+                </div>
+                <div class="content">
+                    <div class="text"><b>KULLANICI EKLE</b></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-purple hover-expand-effect">
+                <div class="icon">
+                    <i class="material-icons">trending_up</i>
+                </div>
+                <div class="content">
+                    <div class="text">TOPLAM KULLANICI SAYISI</div>
+                    <div class="number count-to" id="UsersCount" data-from="0" data-to="0" data-speed="1000" data-fresh-interval="20"></div>
+                </div>
+            </div>
+
+        </div>
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-green hover-expand-effect">
+                <div class="icon">
+                    <i class="material-icons">thumb_up</i>
+                </div>
+                <div class="content">
+                    <div class="text">AKTİF KULLANICI SAYISI</div>
+                    <div class="number count-to" id="UsersActiveCount" data-from="0" data-to="" data-speed="1000" data-fresh-interval="20"></div>
+                </div>
+            </div>
+        </div>
+
+        <div class="col-lg-3 col-md-3 col-sm-6 col-xs-12">
+            <div class="info-box bg-orange hover-expand-effect">
+                <div class="icon">
+                    <i class="material-icons">thumb_down</i>
+                </div>
+                <div class="content">
+                    <div class="text">PASİF KULLANICI SAYISI</div>
+                    <div class="number count-to" id="UsersPassiveCount" data-from="0" data-to="" data-speed="1000" data-fresh-interval="20"></div>
+                </div>
+            </div>
+        </div>
+        <!-- Basic Examples -->
+        <div class="row clearfix js-sweetalert">
+            <div class="col-lg-12 col-md-12 col-sm-12 col-xs-12">
+                <div class="card">
+                    <div class="header">
+                        <h2>
+                            KULLANICI YÖNETİMİ
+                        </h2>
+                    </div>
+                    <div class="body">
+                        <div class="table">
+                            <table id="datatable" class="table table-bordered table-striped table-hover">
+                                <thead>
+                                    <tr>
+                                        <th>Adı</th>
+                                        <th>Soyadı</th>
+                                        <th>E-Maili</th>
+                                        <th>Cinsiyeti</th>
+                                        <th>İp Adresi</th>
+                                        <th>Oluşturulma Tarihi</th>
+                                        <th>Durum</th>
+                                        <th>İşlemler</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+        <!-- #END# Basic Examples -->
+        <div id="modalForm">
+            <!-- Pop-up form verileri gelecek (Ekleme,güncelleme) -->
+        </div>
+    </div>
+</section>
+
+<script type="text/javascript">
+
+    var table = $('#datatable').DataTable({
+        "processing": true,
+        "serverSide": true,
+        "filter": true,
+        "order": [5, 'desc'],
+        "lengthMenu": [[10, 25, 50, 100, -1], [10, 25, 50, 100, "Hepsi"]],
+        "ajax": {
+            "url": "/Home/LoadTable",
+            "type": "POST",
+            "dataType": "json"
+        },
+        "initComplete": function (settings, json) {
+            $('#UsersCount').countTo({ from: 0, to: json.recordsTotal });
+            $('#UsersActiveCount').countTo({ from: 0, to: json.activeRecords });
+            $('#UsersPassiveCount').countTo({ from: 0, to: json.passiveRecords });
+        },
+        "columns": [
+            {
+                data: "name",
+                render: function (data, type, row) {
+                    return "<td>" + data + "</td>";
+                }
+            },
+            {
+                data: "lastName",
+                render: function (data, type, row) {
+                    return "<td>" + data + "</td>";
+                }
+            },
+            {
+                data: "email",
+                render: function (data, type, row) {
+                    return "<td>" + data + "</td>";
+                }
+            },
+            {
+                data: "gender",
+                render: function (data, type, row) {
+                    return "<td>" + data + "</td>";
+                }
+            },
+            {
+                data: "ipAddress",
+                render: function (data, type, row) {
+                    return "<td>" + data + "</td>";
+                }
+            },
+            {
+                data: "date",
+                render: function (data, type, row) {
+                    return "<td>" + moment(data).format("DD/MM/YYYY") + "</td>";
+                }
+            },
+            {
+                render: function (data, type, row) {
+                    if (row["isActive"] === true) return "<td><i class='material-icons bg-green'>check</i></td>";
+                    if (row["isActive"] === false) return "<td><i class='material-icons bg-red'>close</i></td>";
+                }
+            },
+            {
+                render: function (data, type, row) {
+                    if (row["isActive"] === true) {
+                        return "<td><button type='button' class='btn bg-green waves-effect' id='pasif' data-id=" + row["isActive"] + " data-target=" + row["rowGuid"] + "> <i class='material-icons'>thumb_up</i> Aktif </button>   " +
+                            "<button type='button' data-id='" + row["rowGuid"] + "' id='UsersCreateOrUpdateView' style = 'margin-left: 1px;' class='btn bg-purple waves-effect'><i class='material-icons'>edit</i> Düzenle </a>   " +
+                            "<button type='button' id='sil' data-id='" + row["rowGuid"] + "' class='btn bg-red waves-effect'><i class='material-icons'>delete</i>Sil</button><td>";
+                    }
+                    if (row["isActive"] === false) {
+                        return "<td><button type='button' class='btn bg-orange waves-effect' id='aktif' data-id=" + row["isActive"] + " data-target=" + row["rowGuid"] + "> <i class='material-icons'>thumb_down</i> Pasif </button>   " +
+                            "<button type='button' data-id='" + row["rowGuid"] + "' id='UsersCreateOrUpdateView' style = 'margin-left: 1px;' class='btn bg-purple waves-effect'><i class='material-icons'>edit</i> Düzenle </a>   " +
+                            "<button type='button' id='sil' data-id='" + row["rowGuid"] + "' class='btn bg-red waves-effect'><i class='material-icons'>delete</i>Sil</button><td>";
+                    }
+                }
+            }
+        ]
+    }); // datatable ajax ile dolduruyoruz.
+
+    $(document).on("click", "#pasif, #aktif", function () {
+        var RowGuid = $(this).data("target");
+        $.ajax({
+            url: "/Home/ActiveControl/" + RowGuid,
+            type: 'POST',
+            data: { RowGuid },
+            success: function (data) {
+                table.ajax.reload(null, false); // işlem success ise datatable ajax'ı tekrardan çağır.
+                if (data.isActive) {
+                    swal.fire({
+                        title: 'Aktif Oldu !',
+                        type: 'success'
+                    });
+                    $('#UsersActiveCount').countTo({ from: 0, to: table.ajax.json().activeRecords + 1 }); // aktif olduysa toplam aktif sayısını 1 artır.
+                    $('#UsersPassiveCount').countTo({ from: 0, to: table.ajax.json().passiveRecords - 1 }); // aktif olduysa toplam pasif sayısını 1 azalt.
+                }
+                else {
+                    swal.fire({
+                        title: 'Pasif Oldu !',
+                        type: 'error'
+                    });
+                    $('#UsersActiveCount').countTo({ from: 0, to: table.ajax.json().activeRecords - 1 }); // pasif olduysa toplam aktif sayısını 1 azalt.
+                    $('#UsersPassiveCount').countTo({ from: 0, to: table.ajax.json().passiveRecords + 1 }); // pasif olduysa toplam pasif sayısını 1 artır.
+                }
+            },
+            error: function (data) {
+                swal.fire({
+                    title: 'İşlem Gerçekleşmedi !',
+                    type: 'warning'
+                });
+            }
+        });
+    }); // aktiflik pasiflik durumlarını güncelliyoruz.
+
+    $(document).on('click', '#sil', function () {
+        var item = $(this);
+        var RowGuid = item.data("id");
+        swal.fire({
+            title: 'Silinecek!',
+            text: "Silmek istediğinize emin misiniz?",
+            type: 'warning',
+            showCancelButton: true,
+            confirmButtonColor: '#ea3c07',
+            confirmButtonText: 'Evet, sil!',
+            cancelButtonText: 'İptal!'
+        }).then((result) => {
+            if (result.value) { // Evet, sil! butonuna basıldıysa
+                $.ajax({
+                    url: "/Home/Delete/" + RowGuid,
+                    method: 'POST',
+                    data: { RowGuid },
+                    success: function (data) {
+                        if (data.isActive) {
+                            swal.fire('Silindi!', 'silindi', 'success');
+                            setTimeout(function () {
+                                swal.close();
+                                item.closest("tr").fadeOut(1000, function () {
+                                    item.closest("tr").remove();
+                                });
+                            }, 1000); // tabloda ki ilgili satırı 1 saniyelik sürede fadeOut şeklinde sil.
+                            setTimeout(function () {
+                                table.ajax.reload(null, false); // işlem success ise datatable ajax'ı tekrardan çağır.
+                                $('#UsersCount').countTo({ from: 0, to: table.ajax.json().recordsTotal - 1 }); // silinme işlemi gerçekleştiyse toplam sayısını 1 azalt.
+                            }, 2000);
+                        }
+                        else {
+                            swal.fire({
+                                title: 'Hata oldu silinemedi !',
+                                type: 'error'
+                            });
+                        }
+                    },
+                    error: function (data) {
+                        swal.fire({
+                            title: 'İşlem Gerçekleşmedi !',
+                            type: 'warning'
+                        });
+                    }
+                });
+            }
+            else {
+                swal.fire('İptale Basıldı!', 'silinemedi', 'error');
+            }
+        });
+    }); // silme işlemi için ajax eventi.
+
+    $(document).on('click', '#UsersCreateOrUpdateView', function () {
+        var RowGuid = $(this).data("id"); // Guid id'yi data-id'den al.
+        $('#modalForm').load('/Home/CreateOrUpdate/' + RowGuid); // Oluşturulan partial view'i div'in içine bas ve parametre olarak RowGuid değerini controller'a taşı.
+    });
+
+</script>
+

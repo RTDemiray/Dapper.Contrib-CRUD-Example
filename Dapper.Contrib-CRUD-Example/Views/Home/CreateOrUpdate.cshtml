@@ -1,0 +1,86 @@
+﻿@model Users
+
+
+<!-- Modal Dialogs ====================================================================================================================== -->
+<!-- Default Size -->
+<div class="modal fade" id="modelCreateView" tabindex="-1" role="dialog">
+    <div class="modal-dialog" style="width: 80%" role="document">
+        <div class="modal-content">
+            <div class="modal-header bg-cyan">
+                <h4 class="modal-title text-center" id="defaultModalLabel">Kullanıcı İşlemleri</h4>
+            </div>
+            <div class="modal-body">
+                <div class="body">
+                    <form id="postForm" asp-antiforgery="true" data-ajax="true" data-ajax-success="success">
+                        <input type="hidden" asp-for="RowGuid" />
+                        <input type="hidden" asp-for="date_time" />
+                        <input type="hidden" asp-for="is_active" />
+                        <div class="form-group">
+                            <label class="form-label">Ad</label>
+                            <div class="form-line">
+                                <input type="text" asp-for="first_name" class="form-control" />
+                                <span asp-validation-for="first_name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Soyad</label>
+                            <div class="form-line">
+                                <input type="text" asp-for="last_name" class="form-control" />
+                                <span asp-validation-for="last_name" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Email</label>
+                            <div class="form-line">
+                                <input type="email" asp-for="email" class="form-control" />
+                                <span asp-validation-for="email" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">Cinsiyet</label>
+                            <div class="form-line">
+                                <input type="text" asp-for="gender" class="form-control" />
+                                <span asp-validation-for="gender" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <div class="form-group">
+                            <label class="form-label">İp Adresi</label>
+                            <div class="form-line">
+                                <input type="text" asp-for="ip_address" class="form-control" />
+                                <span asp-validation-for="ip_address" class="text-danger"></span>
+                            </div>
+                        </div>
+                        <button class="btn bg-green waves-effect" type="submit" id="ekle"><i class="material-icons">edit</i><span></span>Kaydet </button>
+                    </form>
+                </div>
+            </div>
+            <div class="modal-footer">
+                <button type="button" class="closest btn bg-red waves-effect" data-dismiss="modal">KAPAT</button>
+            </div>
+        </div>
+
+    </div>
+</div>
+<!-- END Default Size -->
+<!-- END Modal Dialogs ====================================================================================================================== -->
+<script>
+    $("#modelCreateView").modal("show"); // Bu sayfa çağırılınca modal açılacak.
+    $.validator.unobtrusive.parse("#postForm"); // Bu sayfa çağırılınca validasyon devreye girecek.
+    function success(response) {
+        if (response.status) {
+            swal.fire({
+                title: response.message,
+                type: 'success'
+            });
+            table.ajax.reload(null, false); // kayıt işlemi başarılıysa datatable ajax'ı tekrardan çağır.
+            $("#modelCreateView").modal('hide'); // kayıt işlemi başarılıysa modal'ı kapat.
+        }
+        else {
+            swal.fire({
+                title: response.message,
+                type: 'error'
+            });
+        }
+    }
+</script>
+
